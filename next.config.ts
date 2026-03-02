@@ -1,7 +1,17 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '10mb',
+    },
+  },
+  // Turbopack: força a raiz do projeto a ser este diretório,
+  // evitando que ele suba para diretórios pai (OneDrive / workspace).
+  turbopack: {
+    root: __dirname,
+  },
+  outputFileTracingRoot: __dirname,
 };
 
 export default nextConfig;
