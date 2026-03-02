@@ -34,7 +34,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Props)
   const { tab = 'timeline', toast } = await searchParams
 
   const project = await getProjectById(id)
-  if (!project) notFound()
+  if (!project) return notFound()
 
   // Busca cliente vinculado (para exibir badge do portal)
   const linkedClient = project.client_id
@@ -87,6 +87,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Props)
 
   // Progress for dispatch email
   function calcProgress() {
+    if (!project) return 0
     if (project.status === 'done')    return 100
     if (project.status === 'planned') return 0
     if (project.status === 'review')  return 75
