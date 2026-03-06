@@ -8,7 +8,6 @@ import {
   getTeamMembersByProject,
   getClientById,
 } from '@/lib/db'
-import { updateProjectAction, deleteProjectAction } from '@/lib/actions'
 import CopyPortalLinkBadge from '@/components/project/CopyPortalLinkBadge'
 import ProjectForm from '@/components/project/ProjectForm'
 import ProjectTabs from '@/components/project/ProjectTabs'
@@ -82,9 +81,6 @@ export default async function ProjectDetailPage({ params, searchParams }: Props)
     dispatches = (data ?? []) as EmailDispatch[]
   }
 
-  const handleUpdate = updateProjectAction.bind(null, id)
-  const handleDelete = deleteProjectAction.bind(null, id)
-
   // Progress for dispatch email
   function calcProgress() {
     if (!project) return 0
@@ -134,8 +130,7 @@ export default async function ProjectDetailPage({ params, searchParams }: Props)
             <ProjectForm
               defaultValues={project}
               isEditing
-              onSubmit={handleUpdate}
-              onDelete={handleDelete}
+              projectId={id}
             />
             <div>
               <h3 className="text-xs font-mono text-muted uppercase tracking-widest border-b border-border pb-2 mb-4">

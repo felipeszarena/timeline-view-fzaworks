@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { slugify, monthName, currentYear } from '@/lib/utils'
+import { updateProjectAction, deleteProjectAction } from '@/lib/actions'
 import type { Project, ProjectFormValues } from '@/lib/types'
 
 // ── Shared input styles ──────────────────────────────────────
@@ -49,16 +50,16 @@ function Field({
 interface ProjectFormProps {
   defaultValues?: Partial<Project>
   isEditing?: boolean
-  onSubmit: (data: ProjectFormValues) => Promise<{ error?: string }>
-  onDelete?: () => Promise<{ error?: string }>
+  projectId?: string
+  onSubmit?: (data: ProjectFormValues) => Promise<{ error?: string }>
 }
 
 // ── Component ────────────────────────────────────────────────
 export default function ProjectForm({
   defaultValues,
   isEditing = false,
+  projectId,
   onSubmit,
-  onDelete,
 }: ProjectFormProps) {
   const router = useRouter()
   const [slugEdited, setSlugEdited] = useState(!!defaultValues?.slug)
@@ -99,7 +100,9 @@ export default function ProjectForm({
     setSubmitting(true)
     setError('')
     try {
-      const res = await onSubmit(v)
+      const res = projectId
+        ? await updateProjectAction(projectId, v)
+        : await onSubmit!(v)
       if (res?.error) {
         setError(res.error)
       } else {
@@ -113,12 +116,12 @@ export default function ProjectForm({
   }
 
   async function handleDelete() {
-    if (!onDelete) return
+    if (!projectId) return
     if (!confirm(`Deletar "${v.name}"? Esta ação não pode ser desfeita.`)) return
     setDeleting(true)
     setError('')
     try {
-      const res = await onDelete()
+      const res = await deleteProjectAction(projectId)
       if (res?.error) {
         setError(res.error)
       } else {
@@ -357,7 +360,7 @@ export default function ProjectForm({
           {submitting ? 'salvando…' : isEditing ? 'Salvar Alterações' : 'Criar Projeto'}
         </button>
 
-        {isEditing && onDelete && (
+        {isEditing && projectId && (
           <button
             type="button"
             onClick={handleDelete}
