@@ -1,5 +1,7 @@
 'use client'
 
+import { toLocal, toUTC } from '@/lib/utils'
+
 interface TaskDatePickerProps {
   label: string
   value?: string | null
@@ -9,13 +11,13 @@ interface TaskDatePickerProps {
   overdue?: boolean
 }
 
-/** Converte ISO string para datetime-local input value (YYYY-MM-DDTHH:mm) */
+/** Converte UTC ISO → "yyyy-MM-ddTHH:mm" no timezone SP para o input */
 function toInputValue(iso: string | null | undefined): string {
   if (!iso) return ''
-  return iso.slice(0, 16)   // "2026-03-15T14:00:00+00:00" → "2026-03-15T14:00"
+  try { return toLocal(iso) } catch { return '' }
 }
 
-/** Formata para exibição em pt-BR: "15 mar. 2026 às 14:00" */
+/** Formata UTC para exibição legível em pt-BR */
 function formatDisplay(iso: string | null | undefined): string | null {
   if (!iso) return null
   try {
@@ -25,6 +27,7 @@ function formatDisplay(iso: string | null | undefined): string | null {
       year: 'numeric',
       hour: '2-digit',
       minute: '2-digit',
+      timeZone: 'America/Sao_Paulo',
     })
   } catch {
     return null
@@ -68,7 +71,10 @@ export default function TaskDatePicker({
         <input
           type="datetime-local"
           value={toInputValue(value)}
-          onChange={e => onChange(e.target.value ? new Date(e.target.value).toISOString() : '')}
+          onChange={e => {
+            if (!e.target.value) { onChange(''); return }
+            onChange(toUTC(e.target.value))
+          }}
           className="w-full px-3 py-2 rounded-lg border text-sm font-mono outline-none transition-colors"
           style={{
             background: 'var(--bg)',

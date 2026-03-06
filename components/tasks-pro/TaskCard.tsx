@@ -4,13 +4,14 @@ import { useDraggable } from '@dnd-kit/core'
 import { CSS } from '@dnd-kit/utilities'
 import type { Task, TeamMember } from '@/lib/types'
 import { TASK_STATUS } from '@/lib/constants'
+import { toLocalDate } from '@/lib/utils'
 
 function getInitials(name: string) {
   return name.split(' ').slice(0, 2).map(n => n[0]).join('').toUpperCase()
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+  return toLocalDate(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 }
 
 interface TaskCardProps {
@@ -42,7 +43,7 @@ export default function TaskCard({
   const isOverdue =
     !!task.due_date &&
     task.status !== 'done' &&
-    new Date(task.due_date) < new Date()
+    toLocalDate(task.due_date) < new Date()
 
   return (
     <div

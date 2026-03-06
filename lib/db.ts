@@ -492,6 +492,22 @@ export async function deleteMilestone(id: string): Promise<void> {
 
 // ── Tasks ─────────────────────────────────────────────────────
 
+/** Fetch all tasks across all projects that have a due_date, with project info */
+export async function getAllTasksForCalendar(): Promise<(Task & { project_name: string; project_color: string | null })[]> {
+  const supabase = createAdminClient()
+  const { data, error } = await supabase
+    .from('tasks')
+    .select('*, projects(name, color)')
+    .not('due_date', 'is', null)
+    .order('due_date', { ascending: true })
+
+  if (error) throw new Error(`getAllTasksForCalendar: ${error.message}`)
+  return (data ?? []).map((t: Record<string, unknown>) => {
+    const proj = t.projects as { name: string; color: string | null } | null
+    return { ...t, project_name: proj?.name ?? '', project_color: proj?.color ?? null } as Task & { project_name: string; project_color: string | null }
+  })
+}
+
 /** Fetch all tasks for a project ordered by order_index */
 export async function getTasksByProject(projectId: string): Promise<Task[]> {
   const supabase = createAdminClient()

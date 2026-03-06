@@ -1,9 +1,10 @@
 'use client'
 
-import { differenceInCalendarDays, startOfDay, format, parseISO } from 'date-fns'
+import { differenceInCalendarDays, startOfDay, format } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import type { Task } from '@/lib/types'
 import { TASK_STATUS } from '@/lib/constants'
+import { toLocalDate } from '@/lib/utils'
 
 interface TimelineTaskProps {
   task:      Task
@@ -28,8 +29,8 @@ function calcTaskProgress(task: Task): number {
   if (!task.start_date || !task.due_date) return 0
 
   const now   = startOfDay(new Date())
-  const start = startOfDay(parseISO(task.start_date))
-  const due   = startOfDay(parseISO(task.due_date))
+  const start = startOfDay(toLocalDate(task.start_date))
+  const due   = startOfDay(toLocalDate(task.due_date))
   const total = differenceInCalendarDays(due, start)
   if (total <= 0) return 0
   return Math.min(90, Math.max(0, Math.round((differenceInCalendarDays(now, start) / total) * 100)))
@@ -38,8 +39,8 @@ function calcTaskProgress(task: Task): number {
 export default function TimelineTask({ task, viewStart, dayWidth, onEdit }: TimelineTaskProps) {
   if (!task.start_date || !task.due_date) return null
 
-  const start  = startOfDay(parseISO(task.start_date))
-  const due    = startOfDay(parseISO(task.due_date))
+  const start  = startOfDay(toLocalDate(task.start_date))
+  const due    = startOfDay(toLocalDate(task.due_date))
   const vStart = startOfDay(viewStart)
 
   const left  = differenceInCalendarDays(start, vStart) * dayWidth
@@ -62,8 +63,8 @@ export default function TimelineTask({ task, viewStart, dayWidth, onEdit }: Time
     :                        `${daysLeft}d restantes`
 
   const cfg      = TASK_STATUS[task.status]
-  const startFmt = format(start, "dd MMM", { locale: ptBR })
-  const dueFmt   = format(due,   "dd MMM yyyy", { locale: ptBR })
+  const startFmt = format(toLocalDate(task.start_date!), "dd MMM", { locale: ptBR })
+  const dueFmt   = format(toLocalDate(task.due_date!),   "dd MMM yyyy", { locale: ptBR })
   const tooltip  = [
     task.title,
     cfg.label,

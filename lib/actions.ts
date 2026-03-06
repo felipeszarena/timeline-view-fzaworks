@@ -11,7 +11,7 @@ import {
   createInvoice, updateInvoice, deleteInvoice,
   createTeamMember, updateTeamMember, deleteTeamMember,
   addProjectTeamMember, removeProjectTeamMember,
-  createTask, updateTask, deleteTask, reorderTasks, getTasksByProject,
+  createTask, updateTask, deleteTask, reorderTasks, getTasksByProject, getAllTasksForCalendar,
   createMilestone, updateMilestone, deleteMilestone,
   createProjectUpdate, deleteProjectUpdate,
   createDeliverable, updateDeliverable, deleteDeliverable,
@@ -359,6 +359,35 @@ export async function createTaskAction(projectId: string, title: string): Promis
     return { error: err instanceof Error ? err.message : 'Erro ao criar tarefa' }
   }
 }
+
+export async function createTaskWithDatesAction(
+  projectId: string,
+  title: string,
+  due_date: string | null,
+  start_date: string | null,
+): Promise<ActionResult> {
+  try {
+    if (!title.trim()) return { error: 'Título é obrigatório' }
+    const existing = await getTasksByProject(projectId)
+    const maxOrder = existing.reduce((max, t) => Math.max(max, t.order_index), -1)
+    await createTask({
+      project_id: projectId,
+      title: title.trim(),
+      status: 'todo',
+      visible_to_client: false,
+      order_index: maxOrder + 1,
+      due_date:   due_date   || null,
+      start_date: start_date || null,
+    })
+    revalidatePath(`/dashboard/projects/${projectId}`)
+    revalidatePath('/dashboard/tasks')
+    return {}
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : 'Erro ao criar tarefa' }
+  }
+}
+
+export { getAllTasksForCalendar }
 
 export async function updateTaskAction(
   taskId: string,

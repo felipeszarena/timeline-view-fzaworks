@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { Task, TeamMember } from '@/lib/types'
 import { TASK_STATUS } from '@/lib/constants'
+import { toLocalDate } from '@/lib/utils'
 
 const COLUMNS: Task['status'][] = ['todo', 'in_progress', 'review', 'done']
 
@@ -11,7 +12,7 @@ function getInitials(name: string) {
 }
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
+  return toLocalDate(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })
 }
 
 interface TaskListViewProps {
@@ -78,7 +79,7 @@ export default function TaskListView({
                   const isOverdue =
                     !!task.due_date &&
                     task.status !== 'done' &&
-                    new Date(task.due_date) < new Date()
+                    toLocalDate(task.due_date) < new Date()
 
                   const taskColor = task.color ?? cfg.color
 

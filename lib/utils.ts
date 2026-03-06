@@ -4,7 +4,36 @@ import {
   startOfDay,
   isBefore,
   isAfter,
+  format,
 } from 'date-fns'
+import { ptBR } from 'date-fns/locale'
+import { toZonedTime, fromZonedTime } from 'date-fns-tz'
+
+// ── Timezone helpers ──────────────────────────────────────────
+
+const TIMEZONE = 'America/Sao_Paulo'
+
+/** Converte string local do input datetime-local para UTC antes de salvar */
+export function toUTC(localDateString: string): string {
+  return fromZonedTime(localDateString, TIMEZONE).toISOString()
+}
+
+/** Converte UTC do Supabase para horário local (SP) para exibição no input */
+export function toLocal(utcString: string): string {
+  const zonedDate = toZonedTime(new Date(utcString), TIMEZONE)
+  return format(zonedDate, "yyyy-MM-dd'T'HH:mm")
+}
+
+/** Formata UTC para exibição legível em pt-BR: "15 mar 2026 às 09:30" */
+export function formatLocalDateTime(utcString: string): string {
+  const zonedDate = toZonedTime(new Date(utcString), TIMEZONE)
+  return format(zonedDate, "dd MMM yyyy 'às' HH:mm", { locale: ptBR })
+}
+
+/** Retorna um Date no horário local de SP — usado no calendário */
+export function toLocalDate(utcString: string): Date {
+  return toZonedTime(new Date(utcString), TIMEZONE)
+}
 
 /** Converts a string to a URL-friendly slug */
 export function slugify(text: string): string {
