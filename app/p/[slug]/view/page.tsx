@@ -116,8 +116,8 @@ export default async function ProjectViewPage({ params }: Props) {
           </section>
         )}
 
-        {/* Andamento do Projeto — kanban read-only */}
-        <ClientTaskBoard tasks={visibleTasks} />
+        {/* Andamento do Projeto — kanban/lista read-only */}
+        <ClientTaskBoard tasks={visibleTasks} slug={slug} />
 
         {/* Deliverables */}
         {deliverables.length > 0 && (
